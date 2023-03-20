@@ -27,7 +27,7 @@ const preparePageRoutes = ({ app, db }) => {
       const { title, content, status = "draft" } = req.locals.body
       const userCreatorId = req.locals.session.user.id
 
-      const urlSlug = title.toLowerCase().replace()
+      const urlSlug = title.toLowerCase().replace(/\s+/g, "-")
 
       const validateUrlSlug = await PageModel.query().findOne({ urlSlug })
 
