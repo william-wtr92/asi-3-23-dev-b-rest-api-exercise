@@ -1,5 +1,6 @@
 import hashPassword from "../db/hashPassword.js"
 import UserModel from "../db/models/UserModel.js"
+import PageModel from "../db/models/PageModel.js"
 import validate from "../middlewares/validate.js"
 import {
   firstNameValidator,
@@ -152,6 +153,10 @@ const prepareUserRoutes = ({ app, db }) => {
 
         return
       }
+
+      await PageModel.query().delete().where({
+        userCreatorId: userId,
+      })
 
       await UserModel.query().delete().where({
         id: userId,
