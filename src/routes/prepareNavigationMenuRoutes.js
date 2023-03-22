@@ -38,8 +38,8 @@ const prepareNavigationMenuRoutes = ({ app, db }) => {
     perms("navmenu", "read"),
     validate({
       query: {
-        offset: offsetValidator.required(),
-        limit: limitValidator.required(),
+        offset: offsetValidator,
+        limit: limitValidator,
       },
     }),
     async (req, res) => {
