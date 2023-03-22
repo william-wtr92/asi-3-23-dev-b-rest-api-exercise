@@ -17,4 +17,11 @@ await db("users").insert([
   },
 ])
 
+await db("navigation_menu").insert([
+  {
+    name: "Hello",
+    parentId: 1,
+  },
+])
+
 process.exit(0)

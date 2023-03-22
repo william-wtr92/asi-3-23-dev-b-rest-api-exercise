@@ -20,7 +20,7 @@ const preparePageRoutes = ({ app, db }) => {
       body: {
         title: titleValidator.required(),
         content: contentValidator.required(),
-        status: statusValidator.required(),
+        status: statusValidator,
       },
     }),
     async (req, res) => {
@@ -127,12 +127,13 @@ const preparePageRoutes = ({ app, db }) => {
       body: {
         title: titleValidator.required(),
         content: contentValidator.required(),
+        status: statusValidator,
       },
     }),
     async (req, res) => {
-      const { title, content } = req.locals.body
+      const { title, content, status } = req.locals.body
       const { pageId } = req.locals.params
-      const { userId } = req.locals.session.user.id
+      const userId = req.locals.session.user.id
 
       const page = await PageModel.query().findById(pageId)
 
@@ -142,12 +143,23 @@ const preparePageRoutes = ({ app, db }) => {
         return
       }
 
-      const userUpdateId = [...page.userUpdateId, userId]
+      if (page.status === "published") {
+        res
+          .status(401)
+          .send({ error: "Cannot change status from published to draft" })
+
+        return
+      }
+
+      const userUpdateId = page.userUpdateId
+        ? [...page.userUpdateId, userId]
+        : [userId]
 
       const updatedPage = await PageModel.query()
         .update({
           ...(title ? { title } : {}),
           ...(content ? { content } : {}),
+          ...(status ? { status } : {}),
           ...(userUpdateId
             ? { userUpdateId: JSON.stringify(userUpdateId) }
             : {}),

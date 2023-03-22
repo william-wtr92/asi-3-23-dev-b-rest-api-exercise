@@ -23,6 +23,16 @@ const prepareNavigationMenuRoutes = ({ app, db }) => {
     async (req, res) => {
       const { name, parentId } = req.locals.body
 
+      const validateParentId = await NavigationMenuModel.query().findOne({
+        id: parentId,
+      })
+
+      if (!validateParentId) {
+        res.status(401).send({ error: "ParentId not found ! " })
+
+        return
+      }
+
       await db("navigation_menu").insert({
         name,
         parentId,
@@ -86,12 +96,22 @@ const prepareNavigationMenuRoutes = ({ app, db }) => {
       },
       body: {
         name: menuNameValidator.required(),
-        parentId: idValidator.required(),
+        parentId: idValidator,
       },
     }),
     async (req, res) => {
       const { name, parentId } = req.locals.body
       const { navId } = req.locals.params
+
+      const validateParentId = await NavigationMenuModel.query().findOne({
+        id: parentId,
+      })
+
+      if (!validateParentId) {
+        res.status(401).send({ error: "ParentId not found ! " })
+
+        return
+      }
 
       const navMenu = await NavigationMenuModel.query().findById(navId)
 

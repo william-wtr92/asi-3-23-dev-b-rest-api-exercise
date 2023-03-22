@@ -30,7 +30,7 @@ const prepareUserRoutes = ({ app, db }) => {
       },
     }),
     async (req, res) => {
-      const { firstname, lastname, email, password, roleId } = req.locals.body
+      const { firstName, lastName, email, password, roleId } = req.locals.body
       const validateUserMail = await UserModel.query().findOne({ email })
 
       if (validateUserMail) {
@@ -42,8 +42,8 @@ const prepareUserRoutes = ({ app, db }) => {
       const [passwordHash, passwordSalt] = await hashPassword(password)
 
       await db("users").insert({
-        firstname,
-        lastname,
+        firstName,
+        lastName,
         email,
         passwordHash,
         passwordSalt,
@@ -97,8 +97,8 @@ const prepareUserRoutes = ({ app, db }) => {
 
   app.patch(
     "/users/:userId",
-    perms("users", "update"),
     auth,
+    perms("users", "update"),
     validate({
       params: {
         userId: idValidator.required(),
