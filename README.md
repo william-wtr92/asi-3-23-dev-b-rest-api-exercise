@@ -1,6 +1,6 @@
 # SDV CRM API
 
-`Link of repo:` [Link of my repo](https://github.com/william-wtr92/asi-3-23-dev-b-rest-api-exercise)
+[Link of my repository](https://github.com/william-wtr92/asi-3-23-dev-b-rest-api-exercise)
 
 ## Complete the .env file
 
