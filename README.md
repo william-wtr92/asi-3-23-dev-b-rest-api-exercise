@@ -1,5 +1,7 @@
 # SDV CRM API
 
+`Link of repo: https://github.com/william-wtr92/asi-3-23-dev-b-rest-api-exercise`
+
 ## Complete the .env file
 
 `DB_HOST=`
