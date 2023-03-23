@@ -98,7 +98,7 @@ const prepareUserRoutes = ({ app, db }) => {
   app.patch(
     "/users/:userId",
     auth,
-    perms("users", "update"),
+    perms("users", "update", true),
     validate({
       params: {
         userId: idValidator.required(),

@@ -119,7 +119,7 @@ const preparePageRoutes = ({ app, db }) => {
   app.patch(
     "/pages/:pageId",
     auth,
-    perms("pages", "update"),
+    perms("pages", "update", true),
     validate({
       params: {
         pageId: idValidator.required(),
@@ -139,14 +139,6 @@ const preparePageRoutes = ({ app, db }) => {
 
       if (!page) {
         res.status(404).send({ error: "Not found !" })
-
-        return
-      }
-
-      if (page.status === "published") {
-        res
-          .status(401)
-          .send({ error: "Cannot change status from published to draft" })
 
         return
       }
