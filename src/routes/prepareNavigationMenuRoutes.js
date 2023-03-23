@@ -8,6 +8,7 @@ import {
 } from "../validator.js"
 import auth from "../middlewares/auth.js"
 import perms from "../middlewares/perms.js"
+import PageModel from "../db/models/PageModel.js"
 
 const prepareNavigationMenuRoutes = ({ app, db }) => {
   app.post(
@@ -18,16 +19,19 @@ const prepareNavigationMenuRoutes = ({ app, db }) => {
       body: {
         name: menuNameValidator.required(),
         parentId: idValidator.required(),
+        pageId: idValidator,
       },
     }),
     async (req, res) => {
-      const { name, parentId } = req.locals.body
+      const { name, parentId, pageId } = req.locals.body
 
       const validateParentId = await NavigationMenuModel.query().findOne({
         id: parentId,
       })
 
-      if (!validateParentId) {
+      const validatePageId = await PageModel.query().findById(pageId)
+
+      if (!validateParentId || !validatePageId) {
         res.status(401).send({ error: "ParentId not found ! " })
 
         return
@@ -36,6 +40,7 @@ const prepareNavigationMenuRoutes = ({ app, db }) => {
       await db("navigation_menu").insert({
         name,
         parentId,
+        pageId,
       })
 
       res.send({ result: "Ok" })
@@ -74,7 +79,14 @@ const prepareNavigationMenuRoutes = ({ app, db }) => {
     }),
     async (req, res) => {
       const { navId } = req.locals.params
-      const navMenu = await NavigationMenuModel.query().findById(navId)
+      const navMenu = await NavigationMenuModel.query()
+        .findById(navId)
+        .withGraphFetched("page(selectSlug)")
+        .modifiers({
+          selectSlug(builder) {
+            builder.select("urlSlug")
+          },
+        })
 
       if (!navMenu) {
         res.status(404).send({ error: "Not found !" })
@@ -82,7 +94,7 @@ const prepareNavigationMenuRoutes = ({ app, db }) => {
         return
       }
 
-      res.send({ data: navMenu })
+      res.send({ data: { ...navMenu, pageSlug: navMenu.page.urlSlug } })
     }
   )
 
@@ -96,19 +108,30 @@ const prepareNavigationMenuRoutes = ({ app, db }) => {
       },
       body: {
         name: menuNameValidator.required(),
-        parentId: idValidator,
+        parentId: idValidator.required(),
+        pageId: idValidator,
       },
     }),
     async (req, res) => {
-      const { name, parentId } = req.locals.body
+      const { name, parentId, pageId } = req.locals.body
       const { navId } = req.locals.params
 
-      const validateParentId = await NavigationMenuModel.query().findOne({
-        id: parentId,
-      })
+      const validateParentId = await NavigationMenuModel.query().findById(
+        parentId
+      )
+
+      const validatePageId = pageId
+        ? await PageModel.query().findById(pageId)
+        : null
 
       if (!validateParentId) {
-        res.status(401).send({ error: "ParentId not found ! " })
+        res.status(401).send({ error: "ParentId not found!" })
+
+        return
+      }
+
+      if (pageId && !validatePageId) {
+        res.status(401).send({ error: "PageId not found!" })
 
         return
       }
@@ -116,7 +139,7 @@ const prepareNavigationMenuRoutes = ({ app, db }) => {
       const navMenu = await NavigationMenuModel.query().findById(navId)
 
       if (!navMenu) {
-        res.status(404).send({ error: "Not found !" })
+        res.status(404).send({ error: "Not found!" })
 
         return
       }
@@ -125,6 +148,7 @@ const prepareNavigationMenuRoutes = ({ app, db }) => {
         .update({
           ...(name ? { name } : {}),
           ...(parentId ? { parentId } : {}),
+          ...(pageId ? { pageId } : {}),
         })
         .where({
           id: navId,

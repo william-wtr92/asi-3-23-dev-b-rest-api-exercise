@@ -3,6 +3,7 @@ export const up = async (knex) => {
     table.increments("id")
     table.text("name").notNullable()
     table.integer("parentId").notNullable()
+    table.integer("pageId").nullable().references("id").inTable("pages")
   })
 }
 

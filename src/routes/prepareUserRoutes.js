@@ -75,7 +75,7 @@ const prepareUserRoutes = ({ app, db }) => {
   app.get(
     "/users/:userId",
     auth,
-    perms("users", "read"),
+    perms("users", "read", true),
     validate({
       params: {
         userId: idValidator.required(),
