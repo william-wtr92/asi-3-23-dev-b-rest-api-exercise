@@ -18,21 +18,29 @@ const prepareNavigationMenuRoutes = ({ app, db }) => {
     validate({
       body: {
         name: menuNameValidator.required(),
-        parentId: idValidator.required(),
+        parentId: idValidator,
         pageId: idValidator,
       },
     }),
     async (req, res) => {
       const { name, parentId, pageId } = req.locals.body
 
-      const validateParentId = await NavigationMenuModel.query().findOne({
-        id: parentId,
-      })
+      if (parentId) {
+        const validateParentId = await NavigationMenuModel.query().findOne({
+          id: parentId,
+        })
+
+        if (!validateParentId) {
+          res.status(401).send({ error: "ParentId not found !" })
+
+          return
+        }
+      }
 
       const validatePageId = await PageModel.query().findById(pageId)
 
-      if (!validateParentId || !validatePageId) {
-        res.status(401).send({ error: "ParentId not found ! " })
+      if (!validatePageId) {
+        res.status(401).send({ error: "PageId not found !" })
 
         return
       }
@@ -90,12 +98,7 @@ const prepareNavigationMenuRoutes = ({ app, db }) => {
       const { navId } = req.locals.params
       const navMenu = await NavigationMenuModel.query()
         .findById(navId)
-        .withGraphFetched("page(selectSlug)")
-        .modifiers({
-          selectSlug(builder) {
-            builder.select("urlSlug")
-          },
-        })
+        .withGraphFetched("children.^")
 
       if (!navMenu) {
         res.status(404).send({ error: "Not found !" })
@@ -103,7 +106,16 @@ const prepareNavigationMenuRoutes = ({ app, db }) => {
         return
       }
 
-      res.send({ data: { ...navMenu, pageSlug: navMenu.page.urlSlug } })
+      const buildTree = (menu) => {
+        return {
+          ...menu,
+          children: menu.children.map(buildTree),
+        }
+      }
+
+      const tree = buildTree(navMenu)
+
+      res.send({ data: tree })
     }
   )
 

@@ -14,6 +14,14 @@ class NavigationMenuModel extends BaseModel {
           to: "pages.id",
         },
       },
+      children: {
+        relation: BaseModel.HasManyRelation,
+        modelClass: NavigationMenuModel,
+        join: {
+          from: "navigation_menu.id",
+          to: "navigation_menu.parentId",
+        },
+      },
     }
   }
 }
