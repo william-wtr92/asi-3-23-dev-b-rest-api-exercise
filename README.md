@@ -20,6 +20,8 @@
 
 `SECURITY_JWT_SECRET=`
 
+`SENDGRID_API_KEY=`
+
 ## To start seed run the command below
 
 `npx knex seed:run`
