@@ -64,7 +64,16 @@ const prepareNavigationMenuRoutes = ({ app, db }) => {
         .limit(limit)
         .offset(offset)
 
-      res.send({ data: navMenu })
+      const totalCount = await NavigationMenuModel.query()
+        .count("* as total")
+        .first()
+
+      res.send({
+        data: navMenu,
+        meta: {
+          totalCount: parseInt(totalCount.total, 10),
+        },
+      })
     }
   )
 

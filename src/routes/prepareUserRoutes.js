@@ -67,8 +67,14 @@ const prepareUserRoutes = ({ app, db }) => {
     async (req, res) => {
       const { offset, limit } = req.locals.query
       const users = await UserModel.query().limit(limit).offset(offset)
+      const totalCount = await UserModel.query().count("* as total").first()
 
-      res.send({ data: users })
+      res.send({
+        data: users,
+        meta: {
+          totalCount: parseInt(totalCount.total, 10),
+        },
+      })
     }
   )
 

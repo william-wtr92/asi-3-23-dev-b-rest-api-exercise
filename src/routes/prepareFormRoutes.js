@@ -57,7 +57,14 @@ const prepareFormRoutes = ({ app, db }) => {
 
       const forms = await FormModel.query().limit(limit).offset(offset)
 
-      res.send({ data: forms })
+      const totalCount = await FormModel.query().count("* as total").first()
+
+      res.send({
+        data: forms,
+        meta: {
+          totalCount: parseInt(totalCount.total, 10),
+        },
+      })
     }
   )
 

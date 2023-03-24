@@ -67,7 +67,17 @@ const preparePageRoutes = ({ app, db }) => {
         .limit(limit)
         .offset(offset)
 
-      res.send({ data: pages })
+      const totalCount = await PageModel.query()
+        .where("status", "published")
+        .count("* as total")
+        .first()
+
+      res.send({
+        data: pages,
+        meta: {
+          totalCount: parseInt(totalCount.total, 10),
+        },
+      })
     }
   )
 
@@ -89,7 +99,17 @@ const preparePageRoutes = ({ app, db }) => {
         .limit(limit)
         .offset(offset)
 
-      res.send({ data: pages })
+      const totalCount = await PageModel.query()
+        .where("status", "draft")
+        .count("* as total")
+        .first()
+
+      res.send({
+        data: pages,
+        meta: {
+          totalCount: parseInt(totalCount.total, 10),
+        },
+      })
     }
   )
 
