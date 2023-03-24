@@ -1,5 +1,5 @@
-import PageModel from "../db/models/PageModel.js"
 import UserModel from "../db/models/UserModel.js"
+import PageModel from "../db/models/PageModel.js"
 
 const perms =
   (permission, method, override = false) =>
@@ -9,24 +9,28 @@ const perms =
       .withGraphFetched("role")
     const rolePermissions = user.role.permissions
 
-    if (typeof req.params.pageId === "undefined") {
-      next()
+    const pageId = parseInt(req.params.pageId)
+    const userId = parseInt(req.params.userId)
 
-      return
+    if (typeof req.params.pageId !== "undefined") {
+      const page = await PageModel.query().findById(pageId)
+
+      if (
+        override &&
+        (req.locals.session.user.id === userId ||
+          page.userCreatorId === req.locals.session.user.id)
+      ) {
+        next()
+
+        return
+      }
     }
-
-    const page = await PageModel.query().findById(parseInt(req.params.pageId))
 
     if (
+      typeof req.params.userId !== "undefined" &&
       override &&
-      req.locals.session.user.id === parseInt(req.params.userId)
+      req.locals.session.user.id === userId
     ) {
-      next()
-
-      return
-    }
-
-    if (override && page.userCreatorId === req.locals.session.user.id) {
       next()
 
       return
