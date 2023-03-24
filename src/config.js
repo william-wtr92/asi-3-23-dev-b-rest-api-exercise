@@ -37,6 +37,9 @@ const config = {
       pepper: process.env.SECURITY_PASSWORD_PEPPER,
     },
   },
+  sendgrid: {
+    apiKey: process.env.SENDGRID_API_KEY,
+  },
 }
 
 export default config

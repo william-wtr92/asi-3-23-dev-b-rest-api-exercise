@@ -11,6 +11,7 @@
     "prettier": "^2.8.4"
   },
   "dependencies": {
+    "@sendgrid/mail": "^7.7.0",
     "cors": "^2.8.5",
     "deepmerge-ts": "^4.3.0",
     "dotenv": "^16.0.3",

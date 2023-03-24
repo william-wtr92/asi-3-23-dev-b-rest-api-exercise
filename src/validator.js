@@ -25,6 +25,8 @@ export const passwordValidator = yup
 
 export const roleIdValidator = yup.number().integer().default(1)
 
+export const tokenValidator = yup.string()
+
 //pages
 
 export const titleValidator = yup.string().trim()
@@ -37,6 +39,17 @@ export const statusValidator = yup.string().trim()
 
 export const menuNameValidator = yup.string().trim()
 
+//form
+
+export const formNameValidator = yup.string().trim()
+
+export const orderedFieldsValidator = yup
+  .array()
+  .of(
+    yup
+      .string()
+      .oneOf(["singleLineText", "multiLineText", "radio", "select", "checkbox"])
+  )
 //pagination
 
 export const offsetValidator = yup.number().integer().min(0)
