@@ -93,7 +93,7 @@ const prepareSignInRoutes = ({ app, db }) => {
         to: email,
         from: "william.wautrin@supdevinci-edu.fr",
         subject: "Reset Password",
-        text: `Click the link below to reset your password: ${resetUrl}`,
+        text: `Click on the link below to reset your password: ${resetUrl}`,
         html: `<p>Click on the link below to reset your password:</p><a href="${resetUrl}">${resetUrl}</a>`,
       }
 
