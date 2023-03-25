@@ -5,6 +5,9 @@ import {
   limitValidator,
   formNameValidator,
   orderedFieldsValidator,
+  defaultValueValidator,
+  optionsValidator,
+  labelValidator,
 } from "../validator.js"
 import auth from "../middlewares/auth.js"
 import perms from "../middlewares/perms.js"
@@ -163,6 +166,74 @@ const prepareFormRoutes = ({ app, db }) => {
       })
 
       res.send({ data: form })
+    }
+  )
+
+  app.get(
+    "/fields",
+    auth,
+    perms("form", "read"),
+    validate({
+      query: {
+        offset: offsetValidator,
+        limit: limitValidator,
+      },
+    }),
+    async (req, res) => {
+      const { offset, limit } = req.locals.query
+
+      const field = await FieldModel.query().limit(limit).offset(offset)
+
+      const totalCount = await FieldModel.query().count("* as total").first()
+
+      res.send({
+        data: field,
+        meta: {
+          totalCount: parseInt(totalCount.total, 10),
+        },
+      })
+    }
+  )
+
+  app.patch(
+    "/fields/:fieldId",
+    auth,
+    perms("form", "update"),
+    validate({
+      params: {
+        fieldId: idValidator.required(),
+      },
+      body: {
+        defaultValue: defaultValueValidator,
+        options: optionsValidator,
+        label: labelValidator,
+      },
+    }),
+    async (req, res) => {
+      const { defaultValue, options, label } = req.locals.body
+      const { fieldId } = req.locals.params
+
+      const field = await FieldModel.query().findById(fieldId)
+
+      if (!field) {
+        res.status(404).send({ error: "Not found!" })
+
+        return
+      }
+
+      const updates = {
+        ...(defaultValue ? { defaultValue } : {}),
+        ...(options ? { options: JSON.stringify(options) } : {}),
+        ...(label ? { label } : {}),
+      }
+
+      await FieldModel.query().update(updates).where({
+        id: fieldId,
+      })
+
+      const updatedField = await FieldModel.query().findById(fieldId)
+
+      res.send({ data: updatedField })
     }
   )
 }

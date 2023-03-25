@@ -100,7 +100,7 @@ const prepareSignInRoutes = ({ app, db }) => {
       await sgMail
         .send(msg)
         .then(() => {
-          res.send({ message: "Password reset email sent" + resetUrl })
+          res.send({ message: "Password reset email sent" })
         })
         .catch((error) => {
           res.status(500).send({ result: error })

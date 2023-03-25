@@ -50,6 +50,15 @@ export const orderedFieldsValidator = yup
       .string()
       .oneOf(["singleLineText", "multiLineText", "radio", "select", "checkbox"])
   )
+
+//fields
+
+export const defaultValueValidator = yup.string().nullable()
+
+export const optionsValidator = yup.object().nullable()
+
+export const labelValidator = yup.string().nullable()
+
 //pagination
 
 export const offsetValidator = yup.number().integer().min(0)
