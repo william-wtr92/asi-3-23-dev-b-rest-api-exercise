@@ -29,15 +29,20 @@ const prepareFormRoutes = ({ app, db }) => {
       const { name, ordered_fields } = req.locals.body
       const userCreatorId = req.locals.session.user.id
 
-      const existingFields = await FieldModel.query().whereIn(
-        "type",
-        ordered_fields
-      )
-      const fieldType = existingFields.map((field) => field.type)
+      const orderedFieldsData = ordered_fields.map((field) => {
+        return {
+          ...(field.fieldId ? { fieldId: field.fieldId } : {}),
+          ...(field.defaultValue
+            ? { defaultValue: field.defaultValue }
+            : { defaultValue: "" }),
+          ...(field.options ? { options: field.options } : { options: null }),
+          ...(field.label ? { label: field.label } : { label: "" }),
+        }
+      })
 
       await db("forms").insert({
         name,
-        ordered_fields: JSON.stringify(fieldType),
+        ordered_fields: JSON.stringify(orderedFieldsData),
         userCreatorId,
       })
 
@@ -124,12 +129,18 @@ const prepareFormRoutes = ({ app, db }) => {
       }
 
       if (ordered_fields) {
-        const existingFields = await FieldModel.query().whereIn(
-          "type",
-          ordered_fields
-        )
-        const fieldType = existingFields.map((field) => field.type)
-        updates.ordered_fields = JSON.stringify(fieldType)
+        const orderedFieldsData = ordered_fields.map((field) => {
+          return {
+            ...(field.fieldId ? { fieldId: field.fieldId } : {}),
+            ...(field.defaultValue
+              ? { defaultValue: field.defaultValue }
+              : { defaultValue: "" }),
+            ...(field.options ? { options: field.options } : { options: null }),
+            ...(field.label ? { label: field.label } : { label: "" }),
+          }
+        })
+
+        updates.ordered_fields = JSON.stringify(orderedFieldsData)
       }
 
       await FormModel.query().update(updates).where({

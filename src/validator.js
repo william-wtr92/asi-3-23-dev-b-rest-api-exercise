@@ -43,13 +43,14 @@ export const menuNameValidator = yup.string().trim()
 
 export const formNameValidator = yup.string().trim()
 
-export const orderedFieldsValidator = yup
-  .array()
-  .of(
-    yup
-      .string()
-      .oneOf(["singleLineText", "multiLineText", "radio", "select", "checkbox"])
-  )
+export const orderedFieldsValidator = yup.array().of(
+  yup.object().shape({
+    fieldId: yup.number().integer().required(),
+    defaultValue: yup.string().nullable(),
+    options: yup.array().nullable(),
+    label: yup.string().nullable(),
+  })
+)
 
 //fields
 
